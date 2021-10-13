@@ -1,0 +1,29 @@
+### IDE specific ###
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/usage.statistics.xml
+.idea/**/dictionaries
+.idea/**/shelf
+.idea/**/aws.xml
+
+### Python ###
+__pycache__/
+
+## Distribution / packaging
+.Python
+build/
+dist/
+downloads/
+lib/
+lib64/
+var/
+
+
+## Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
