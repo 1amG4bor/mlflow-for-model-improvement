@@ -15,7 +15,7 @@ var/
 
 
 ## Environments
-# .env
+.env
 .venv
 env/
 venv/
