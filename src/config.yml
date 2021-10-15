@@ -1,6 +1,8 @@
 # Specify where the dataset comes from moreover the internal folder name if different from the archive name of the dataset
 download:
+    # URL for the archived dataset
     dataset_source: 'https://storage.googleapis.com/download.tensorflow.org/example_images/flower_photos.tgz'
-    dataset_extracted_name: 'flower_photos'
+    # Top folder name of the archived dataset
+    dataset_name: 'flower_photos'
 
 
