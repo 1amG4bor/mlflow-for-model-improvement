@@ -5,9 +5,9 @@ This project aims to show how MLflow can be used to analyze, configure and impro
 >:warning: **This repository contains the source code for the meet-up session that speak of how to use MLflow to improve
  our models.**<br>
 >
->https://img.shields.io/static/v1?label=Session%20date&message=November%2025,%202021&color=success <br>
->https://img.shields.io/static/v1?label=Link%20to%20join&message=Coming%20soon..&color=red
- 
+>![](https://img.shields.io/static/v1?label=Session%20date&message=November%2025,%202021&color=success&logo=meetup) <br>
+>![](https://img.shields.io/static/v1?label=Link%20to%20event&message=Coming%20soon..&color=red&&logo=meetup)
+  
 ## 1). Used technologies:
 - Python 3.8
 - TensorFlow-2 (Keras)
@@ -67,15 +67,15 @@ YAML configuration is: **`src/config.yml`**
  easy to 
 
 ***
+
 ### References:
 
-- [^1]: Guillaume Androz (Jan 10, 2020). [Deploy MLflow with docker compose](https://towardsdatascience.com/deploy-mlflow-with-docker-compose-8059f16b6039) *`towardsdatascience.com`*
-- [^2]: *MLflow - Quickstart*: https://www.mlflow.org/docs/latest/quickstart.html
-- [^3]: *MLflow - Tracking*: https://www.mlflow.org/docs/latest/tracking.html
-- [^4]: *TensorFlow API documentation - python*: https://www.tensorflow.org/api_docs/python/tf
-    - data.Dataset - *API for input pipelines*: https://www.tensorflow.org/api_docs/python/tf/data/Dataset
-    - Keras, models - *API for model creation*: https://www.tensorflow.org/api_docs/python/tf/keras/models
-    - Keras, layers - *How to build layers* : https://www.tensorflow.org/api_docs/python/tf/keras/layers
-    - Keras, callbacks - *Performed actions at various stages of training*: https://www.tensorflow.org/api_docs/python
-    /tf/keras/callbacks
-    - Estimator: High level tools for working with models: https://www.tensorflow.org/api_docs/python/tf/estimator
+[^1]: Guillaume Androz (Jan 10, 2020). [Deploy MLflow with docker compose](https://towardsdatascience.com/deploy-mlflow-with-docker-compose-8059f16b6039) *`towardsdatascience.com`*
+[^2]: *MLflow - Quickstart*: https://www.mlflow.org/docs/latest/quickstart.html
+[^3]: *MLflow - Tracking*: https://www.mlflow.org/docs/latest/tracking.html
+[^4]: *TensorFlow API documentation - python*: https://www.tensorflow.org/api_docs/python/tf <br>
+data.Dataset - *API for input pipelines*: https://www.tensorflow.org/api_docs/python/tf/data/Dataset <br>
+Keras, models - *API for model creation*: https://www.tensorflow.org/api_docs/python/tf/keras/models <br>
+Keras, layers - *How to build layers* : https://www.tensorflow.org/api_docs/python/tf/keras/layers <br>
+Keras, callbacks - *Performed actions at various stages of training*: https://www.tensorflow.org/api_docs/python/tf/keras/callbacks <br>
+Estimator: High level tools for working with models: https://www.tensorflow.org/api_docs/python/tf/estimator
