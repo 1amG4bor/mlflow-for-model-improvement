@@ -32,12 +32,13 @@ def init(experiment_name, tracking_uri=DEFAULT_TRACKING_URI, run_name=None, vers
 
 
 def prepare_data(ARGS, input_shape):
+    batch = ARGS.batch
     dataset_path = data_service.data_sourcing(ARGS)
-    train_data, test_data = data_service.data_segregation(dataset_path, input_shape, ARGS.batch)
-    class_num = len(train_data.class_names)
-    logger.info(f'Classes of the dataset: ({class_num}) => {train_data.class_names}')
+    train_data, test_data, class_labels = data_service.data_segregation(dataset_path, input_shape, batch)
+    labels_size = len(class_labels)
+    logger.info(f'Classes of the dataset: ({labels_size}) => {class_labels}')
 
-    return train_data, test_data, class_num
+    return train_data, test_data, labels_size
 
 
 def build_model(ARGS, class_num):
@@ -57,9 +58,10 @@ if __name__ == '__main__':
     RUN_ARGS, feature_shape = init(experiment_name='Test experiment')
     # Data Ingestion
     train_ds, test_ds, num_of_classes = prepare_data(RUN_ARGS, feature_shape)
-    # Model making
+    # Model creation
     model = build_model(RUN_ARGS, num_of_classes)
     train(model, RUN_ARGS, train_ds)
+
     # Evaluation
     accuracy = evaluate(model, test_ds)
     logger.info(f'The `Accuracy` of the model: {accuracy}')

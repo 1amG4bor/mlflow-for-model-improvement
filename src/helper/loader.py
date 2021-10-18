@@ -24,6 +24,8 @@ def download_dataset(dataset_name, dataset_source, extract_name=None):
     existing_datasets = _get_existing_datasets()
     if not dataset_source:
         raise ValueError('Dataset source is not specified, check the `dataset_source` property in `config.yml` file')
+    if not dataset_name:
+        raise ValueError('Dataset name is not specified, check the `dataset_name` property in `config.yml` file')
     if dataset_name in existing_datasets:
         raise ValueError(f"A dataset is already existed with the given name: '{dataset_name}'")
     url = urlparse(dataset_source)
