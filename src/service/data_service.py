@@ -65,7 +65,8 @@ def data_segregation(path, shape, batch_size):
         subset="training",
         shuffle=True,
         seed=123,
-        image_size=(shape[0], shape[1]))
+        image_size=(shape[0], shape[1]),
+        batch_size=batch_size)
 
     test_dataset = image_dataset_from_directory(
         path,
@@ -76,7 +77,8 @@ def data_segregation(path, shape, batch_size):
         subset="validation",
         shuffle=True,
         seed=123,
-        image_size=(shape[0], shape[1]))
+        image_size=(shape[0], shape[1]),
+        batch_size=batch_size)
 
     class_labels = train_dataset.class_names
 

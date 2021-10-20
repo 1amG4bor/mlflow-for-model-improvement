@@ -7,7 +7,6 @@ import numpy as np
 import mlflow
 from tensorflow.python.keras import models, layers
 from tensorflow.python.keras.layers import Resizing, Rescaling
-# from tensorboard.plugins.hparams import api as hp
 
 from src.helper import config as cfg
 from src.helper.config import LOG_PATH
@@ -36,7 +35,6 @@ class RecognitionModel(models.Sequential):
         self.feature_columns = input_shape
         self.convolution_props = convolution_props
         self.dense_props = dense_props
-        self.labels = dense_props.labels if dense_props else []
         self.log_folder = log_folder
 
         if input_shape and convolution_props and dense_props:
@@ -49,8 +47,6 @@ class RecognitionModel(models.Sequential):
         input_shape = config['input_shape']
         # Create the model (without layers)
         model = cls(input_shape=input_shape,
-                    # convolution_props=ConvolutionProps(*convolution_props.values()),
-                    # dense_props=DenseProps(*dense_props.values()),
                     convolution_props=None,
                     dense_props=None,
                     name=config['name'],
@@ -83,9 +79,9 @@ class RecognitionModel(models.Sequential):
         # Create the convolutional layers
         for size in convolution_props.layers:
             structure.append(layers.Conv2D(filters=size,
-                                        kernel_size=convolution_props.kernel_size,
-                                        padding='same',
-                                        activation=convolution_props.activation))
+                                           kernel_size=convolution_props.kernel_size,
+                                           padding='same',
+                                           activation=convolution_props.activation))
             structure.append(layers.MaxPooling2D())
         # Flatter
         structure.append(layers.Flatten())
@@ -127,16 +123,12 @@ class RecognitionModel(models.Sequential):
         save_format = cfg.get_value('model', 'save_format')
         models.save_model(self, destination, save_format=save_format, overwrite=True)
         mlflow.log_artifacts(destination, file_to_save)
-        # mlflow.keras.log_model()
         return destination
 
     def predict_one(self, sample):
         return self.predict_classes(x=sample, batch_size=1, verbose=1)
 
-    def predict_many(self, samples, batch_size=32):
-        # quantity = len(samples)
-        # batch = batch_size if quantity >= batch_size else quantity
-        # return self.predict_classes(x=samples, batch_size=batch, verbose=1)
+    def predict_many(self, samples):
         result = np.argmax(self.predict(samples), axis=-1)
         return result
 
@@ -149,7 +141,7 @@ class RecognitionModel(models.Sequential):
 
     @staticmethod
     def separate_features_and_labels(dataset):
-        features =[]
+        features = []
         labels = []
         for sample in dataset.as_numpy_iterator():
             features.extend(sample[0])

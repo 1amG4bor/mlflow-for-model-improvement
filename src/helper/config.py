@@ -1,6 +1,5 @@
 import argparse
 import logging
-import os
 import time
 from pathlib import Path
 
@@ -10,7 +9,7 @@ BASE_PATH = Path(__file__).parents[2]       # root path for the application
 DIST_PATH = Path(BASE_PATH.parent, 'DIST')  # DIST/
 MODELS_PATH = Path(DIST_PATH, 'models')     # DIST/models/
 LOG_PATH = Path(DIST_PATH, 'logs')          # DIST/logs
-SRC_PATH = Path(BASE_PATH.parent, 'src')   # src/
+SRC_PATH = Path(BASE_PATH.parent, 'src')    # src/
 CONFIG_FILE = Path(__file__).parents[1].joinpath('config.yml')
 
 logger = logging.getLogger("Config")
@@ -46,7 +45,7 @@ def _get_nested_value(cfg, keys):
     return cfg.get(keys[0])
 
 
-def setup_arguments(models_path):
+def setup_arguments():
     """
     Utilize the named argument that provided or default them to setup the variable that is needed for customization
     purposes.

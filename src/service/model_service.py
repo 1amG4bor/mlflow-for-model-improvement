@@ -32,7 +32,6 @@ def create(name, input_shape, labels, loss_fn=DEFAULT_LOSS_FN):
 
     dense_props = DenseProps(
         layers=[*dense_cfg.get('layers', []), len(labels)],
-        labels=labels,
         activation=dense_cfg.get('activation', DEFAULT_ACTIVATION_FN))
 
     # Initialize the model
@@ -67,7 +66,9 @@ def save(model, name):
 
 def load(model_location, build=False, print_summary=True):
     """ Returns a Keras model instance that will be compiled if it was saved that way, otherwise need to compile
-    :parameter model_location: destination of the saved model, it could be: `str`, `pathlib.Path`, `h5py.File`
+    :parameter model_location: [str or pathlib.Path or h5py.File], location of the saved model to load
+    :param build: Boolean, whether to build the model when it is loaded (default `False`).
+    :param print_summary: Boolean, whether to print the model summary if the model is re-builded (default `True`).
     """
     model = RecognitionModel.load_saved_model(model_location)
     if build:
@@ -93,7 +94,7 @@ def validate_classification(model, test_ds, labels, print_detailed=True):
         for label, prediction in zip(label_set, result_set):
             num_correct += 1 if label == prediction else 0
             if print_detailed:
-                print(f'Prediction => expected: {labels[label]}({label}), prediction: {labels[prediction]}({prediction})'
+                print(f'Prediction; expected: {labels[label]}({label}), prediction: {labels[prediction]}({prediction})'
                       f' - {"Correct" if label == prediction else "Wrong"}')
     accuracy = num_correct / num_samples * 100
     print(f'Accuracy: {num_correct} is correct out of {num_samples} - {accuracy:.3f} %')

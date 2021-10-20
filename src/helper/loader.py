@@ -1,7 +1,6 @@
 import logging
 import os
 import shutil
-import zipfile
 from pathlib import Path
 from urllib.parse import urlparse
 from typing import List
@@ -66,6 +65,7 @@ def fetch_labels(dataset_name):
     if dataset_name in datasets:
         return extract_label_set(Path(DATASET_PATH, dataset_name))
     return None
+
 
 def _get_existing_datasets():
     return [ds for ds in os.listdir(DATASET_PATH) if os.path.isdir(os.path.join(DATASET_PATH, ds))]
