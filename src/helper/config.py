@@ -6,8 +6,14 @@ from pathlib import Path
 
 import yaml
 
-logger = logging.getLogger("Config")
+BASE_PATH = Path(__file__).parents[2]       # root path for the application
+DIST_PATH = Path(BASE_PATH.parent, 'DIST')  # DIST/
+MODELS_PATH = Path(DIST_PATH, 'models')     # DIST/models/
+LOG_PATH = Path(DIST_PATH, 'logs')          # DIST/logs
+SRC_PATH = Path(BASE_PATH.parent, 'src')   # src/
 CONFIG_FILE = Path(__file__).parents[1].joinpath('config.yml')
+
+logger = logging.getLogger("Config")
 
 
 def timed(func):
@@ -40,7 +46,7 @@ def _get_nested_value(cfg, keys):
     return cfg.get(keys[0])
 
 
-def setup_arguments(base_path):
+def setup_arguments(models_path):
     """
     Utilize the named argument that provided or default them to setup the variable that is needed for customization
     purposes.
@@ -63,6 +69,14 @@ def setup_arguments(base_path):
                           are list of strings where the first item will be the name of the new dataset. eg: ".. -sub 
                           new-dataset stop give-way"''')
 
+    # Arguments related to the model
+    model_group = parser.add_argument_group('Arguments for the model related options')
+    model_group.add_argument('-n', '--name', type=str, required=True,
+                             help='Name for loading/saving the model')
+    model_group.add_argument('-c', '--create', action="store_true",
+                             help='Create & train the model with the given name. If this flag is not set, then the '
+                                  'previously saved model will be loaded if it exists with the given name.')
+
     # Arguments to configure the training process
     process_group = parser.add_argument_group('Arguments configure the training process')
     process_group.add_argument('-b', '--batch', type=int, default=64,
@@ -70,14 +84,7 @@ def setup_arguments(base_path):
     process_group.add_argument('-ep', '--epoch', type=int, default=20,
                                help='Epoch size for training the model. (default:20)')
 
-    # Arguments related to the model
-    model_group = parser.add_argument_group('Arguments for the model related options')
-    model_group.add_argument('-s', '--save', type=str, default=os.path.join(base_path, 'models'),
-                             help='Folder for saving the model')
-    model_group.add_argument('-n', '--name', type=str, default='traffic_sign_dataset',
-                             help='Name for saving the model')
     args = parser.parse_args()
-
     if not args.dataset and not args.download:
         logger.error('Error! No any data-source has been provided, `download` or `dataset` argument is required!')
         raise ValueError(

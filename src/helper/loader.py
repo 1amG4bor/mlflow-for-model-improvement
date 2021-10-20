@@ -10,7 +10,6 @@ import tensorflow as tf
 from src.helper.config import timed
 
 logger = logging.getLogger("Loader")
-BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 USER_PATH = os.path.expanduser('~')
 DATASET_PATH = Path(USER_PATH, '.keras', 'datasets')
 

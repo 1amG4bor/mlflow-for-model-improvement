@@ -1,74 +1,121 @@
 import logging
-import os
-import pathlib
 from pathlib import Path
 from typing import Tuple
 
-import mlflow
 import tensorflow as tf
-from tensorflow.python.keras.models import Sequential
-from tensorflow.keras import layers
-from tensorboard.plugins.hparams import api as hp
+import numpy as np
+import mlflow
+from tensorflow.python.keras import models, layers
+from tensorflow.python.keras.layers import Resizing, Rescaling
+# from tensorboard.plugins.hparams import api as hp
 
+from src.helper import config as cfg
+from src.helper.config import LOG_PATH
 from src.model.props import ConvolutionProps, DenseProps
 
 logger = logging.getLogger('recognition_model')
-BASE_PATH = os.path.dirname(os.path.abspath(__file__))
-DEFAULT_LOG_FOLDER = str(Path(BASE_PATH, 'logs'))
+DEFAULT_LOG_FOLDER = LOG_PATH
 
 
-class RecognitionModel(Sequential):
+class RecognitionModel(models.Sequential):
     """Traffic sign recognition model
-    :parameter input_shape: input shape of the model
-    :parameter convolution_props: properties of convolutional layers
-    :parameter dense_props: properties of dense layers
-    :parameter model_name: name of the model
-    :parameter log_folder: location for logs
+        :parameter input_shape: input shape of the model
+        :parameter convolution_props: properties of convolutional layers
+        :parameter dense_props: properties of dense layers
+        :parameter name: name of the model
+        :parameter log_folder: location for logs
     """
     def __init__(self,
                  input_shape: Tuple[int, int, int],
-                 convolution_props: ConvolutionProps,
-                 dense_props: DenseProps,
-                 model_name: str = 'RecognitionModel',
-                 log_folder: str = DEFAULT_LOG_FOLDER
+                 convolution_props: ConvolutionProps = None,
+                 dense_props: DenseProps = None,
+                 name: str = 'RecognitionModel',
+                 log_folder: str = DEFAULT_LOG_FOLDER,
                  ):
-        super(RecognitionModel, self).__init__(name=model_name)
+        super().__init__(name=name)
+        self.feature_columns = input_shape
+        self.convolution_props = convolution_props
+        self.dense_props = dense_props
+        self.labels = dense_props.labels if dense_props else []
         self.log_folder = log_folder
-        self.feature_shape = input_shape
-        self.dataset_params = [None, input_shape[:-1], 64]
 
-        # Image rescale pre-processing
-        self.add(layers.experimental.preprocessing.Rescaling(1. / 255, input_shape))
+        if input_shape and convolution_props and dense_props:
+            self.__build_layer_structure(input_shape, convolution_props, dense_props)
+            for layer in self.layer_list:
+                self.add(layer)
+
+    @classmethod
+    def from_config(cls, config, custom_objects=None):
+        input_shape = config['input_shape']
+        # Create the model (without layers)
+        model = cls(input_shape=input_shape,
+                    # convolution_props=ConvolutionProps(*convolution_props.values()),
+                    # dense_props=DenseProps(*dense_props.values()),
+                    convolution_props=None,
+                    dense_props=None,
+                    name=config['name'],
+                    log_folder=config['log_folder'])
+        # Load the layers
+        layer_configs = config['layers']
+        for layer_config in layer_configs:
+            layer = layers.deserialize(layer_config)
+            model.add(layer)
+        # Build
+        build_input_shape = config.get('build_input_shape') or None
+        if not model.inputs and build_input_shape and isinstance(build_input_shape, (tuple, list)):
+            model.build_model(log_summary=False)
+        return model
+
+    def get_config(self):
+        return {
+            'input_shape': self.feature_columns,
+            'convolution_props': self.convolution_props.get_config(),
+            'dense_props': self.dense_props.get_config(),
+            'name': self.name,
+            'log_folder': self.log_folder,
+            'layers': self.layers,
+            'build_input_shape': self.input_shape,
+        }
+
+    def __build_layer_structure(self, input_shape, convolution_props, dense_props):
+        # Image pre-processing (resize/rescale)
+        structure = [Resizing(*input_shape[:2]), Rescaling(1. / 255)]
         # Create the convolutional layers
         for size in convolution_props.layers:
-            self.add(layers.Conv2D(filters=size,
-                                   kernel_size=convolution_props.kernel_size,
-                                   padding='same',
-                                   activation=convolution_props.activation))
-            self.add(layers.MaxPooling2D())
+            structure.append(layers.Conv2D(filters=size,
+                                        kernel_size=convolution_props.kernel_size,
+                                        padding='same',
+                                        activation=convolution_props.activation))
+            structure.append(layers.MaxPooling2D())
         # Flatter
-        self.add(layers.Flatten())
+        structure.append(layers.Flatten())
         # Create the dense layers
         for size in dense_props.layers:
-            self.add(layers.Dense(units=size, activation=dense_props.activation))
-        self.add(layers.Dense(dense_props.final_layer))
+            structure.append(layers.Dense(units=size, activation=dense_props.activation))
+        structure.append(layers.Dense(units=dense_props.final_layer, activation='softmax'))
+        self.layer_list = structure
 
     def compile_model(self, optimizer, loss_fn, metrics):
         self.compile(optimizer, loss_fn, metrics)
+
+    def build_model(self, log_summary=True):
+        shape = (0,) + self.feature_columns
+        self.build(shape)
+        if log_summary:
+            logger.info(f'Model summary:\n{self.summary()}')
 
     def evaluate_accuracy(self, test_input):
         _, accuracy = self.evaluate(test_input)
         return accuracy
 
-    def train(self, samples, labels, validation_split, epochs, hparams):
+    def train_model(self, samples, labels, validation_split, epochs):
         self.fit(
             x=samples,
             y=labels,
             validation_split=validation_split,
             epochs=epochs,
             callbacks=[
-                tf.keras.callbacks.TensorBoard(self.log_folder),  # log metrics
-                hp.KerasCallback(self.log_folder, hparams),  # log hparams
+                tf.keras.callbacks.TensorBoard(self.log_folder),    # log metrics
             ],
         )
 
@@ -77,15 +124,28 @@ class RecognitionModel(Sequential):
             file_to_save = self.name
         destination = Path(model_folder, file_to_save)
 
-        self.save(destination, save_format='h5')
-        mlflow.log_artifacts(destination, "model")
+        save_format = cfg.get_value('model', 'save_format')
+        models.save_model(self, destination, save_format=save_format, overwrite=True)
+        mlflow.log_artifacts(destination, file_to_save)
+        # mlflow.keras.log_model()
+        return destination
+
+    def predict_one(self, sample):
+        return self.predict_classes(x=sample, batch_size=1, verbose=1)
+
+    def predict_many(self, samples, batch_size=32):
+        # quantity = len(samples)
+        # batch = batch_size if quantity >= batch_size else quantity
+        # return self.predict_classes(x=samples, batch_size=batch, verbose=1)
+        result = np.argmax(self.predict(samples), axis=-1)
+        return result
 
     @staticmethod
-    def load_model(model_location):
+    def load_saved_model(model_location):
         """ Returns a Keras model instance that will be compiled if it was saved that way, otherwise need to compile
         :parameter model_location: destination of the saved model, it could be: `str`, `pathlib.Path`, `h5py.File`
         """
-        return tf.keras.models.load_model(model_location)
+        return models.load_model(model_location, custom_objects={'RecognitionModel': RecognitionModel})
 
     @staticmethod
     def separate_features_and_labels(dataset):

@@ -6,7 +6,6 @@ from tensorflow.python.keras.preprocessing.image_dataset import image_dataset_fr
 from src.helper.config import timed
 from src.helper import loader, config
 
-BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 USER_PATH = os.path.expanduser('~')
 DATASET_PATH = Path(USER_PATH, '.keras', 'datasets')
 
@@ -57,7 +56,6 @@ def data_sourcing(args):
 @timed
 def data_segregation(path, shape, batch_size):
     logger.info(f'Data segregation of dataset: {path.stem}')
-    drop_remainder = lambda ds: ds.batch(batch_size, drop_remainder=True)
     train_dataset = image_dataset_from_directory(
         path,
         labels='inferred',
@@ -82,4 +80,4 @@ def data_segregation(path, shape, batch_size):
 
     class_labels = train_dataset.class_names
 
-    return drop_remainder(train_dataset), test_dataset, class_labels
+    return train_dataset, test_dataset, class_labels

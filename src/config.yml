@@ -5,4 +5,20 @@ download:
     # Top folder name of the archived dataset
     dataset_name: 'flower_photos'
 
+model:
+    convolution:
+        # Array with the number of filters for each layer
+        layers: [32, 64, 64]
+        # Kernel size for the Convolution layers
+        kernel: 3
+        # Activation function for the Convolution layers
+        activation: 'relu'
+    dense:
+        # Array with the number of nodes for each Dense layer
+        layers: [64, 16]
+        # Activation function for the Dense layers
+        activation: 'relu'
+    optimizer: 'adam'
+    # Output type of model when saved ('tf' or 'h5')
+    save_format: 'tf'
 
