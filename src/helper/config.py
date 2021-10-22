@@ -6,9 +6,10 @@ from pathlib import Path
 import yaml
 
 BASE_PATH = Path(__file__).parents[2]       # root path for the application
-DIST_PATH = Path(BASE_PATH.parent, 'DIST')  # DIST/
-MODELS_PATH = Path(DIST_PATH, 'models')     # DIST/models/
+DIST_PATH = Path(BASE_PATH, 'DIST')         # DIST/
 LOG_PATH = Path(DIST_PATH, 'logs')          # DIST/logs
+MODELS_PATH = Path(DIST_PATH, 'models')     # DIST/models/
+EXPORTED_MODELS_PATH = Path(DIST_PATH, 'mlruns')
 SRC_PATH = Path(BASE_PATH.parent, 'src')    # src/
 CONFIG_FILE = Path(__file__).parents[1].joinpath('config.yml')
 

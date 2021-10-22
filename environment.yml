@@ -1,0 +1,13 @@
+#YAML file was made with the command: `conda env export --from-history > environment.yml`
+
+# Create the environment with the command:
+# `conda env create -f environment.yml`
+name: CNN-model-with-mlflow
+channels:
+  - defaults
+dependencies:
+  - python=3.8
+  - tensorflow=2.5
+  - mlflow
+  - boto3
+  - keras

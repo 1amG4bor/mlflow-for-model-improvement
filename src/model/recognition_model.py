@@ -2,18 +2,20 @@ import logging
 from pathlib import Path
 from typing import Tuple
 
-import tensorflow as tf
 import numpy as np
-import mlflow
+import tensorflow as tf
 from tensorflow.python.keras import models, layers
-from tensorflow.python.keras.layers import Resizing, Rescaling
+from tensorboard.plugins.hparams import api as hp
+import mlflow.keras
 
 from src.helper import config as cfg
-from src.helper.config import LOG_PATH
+from src.helper.config import LOG_PATH, EXPORTED_MODELS_PATH
 from src.model.props import ConvolutionProps, DenseProps
+
 
 logger = logging.getLogger('recognition_model')
 DEFAULT_LOG_FOLDER = LOG_PATH
+HP_OPTIMIZER = hp.HParam('optimizer', hp.Discrete(['adam']))
 
 
 class RecognitionModel(models.Sequential):
@@ -74,8 +76,7 @@ class RecognitionModel(models.Sequential):
         }
 
     def __build_layer_structure(self, input_shape, convolution_props, dense_props):
-        # Image pre-processing (resize/rescale)
-        structure = [Resizing(*input_shape[:2]), Rescaling(1. / 255)]
+        structure = []
         # Create the convolutional layers
         for size in convolution_props.layers:
             structure.append(layers.Conv2D(filters=size,
@@ -123,6 +124,7 @@ class RecognitionModel(models.Sequential):
         save_format = cfg.get_value('model', 'save_format')
         models.save_model(self, destination, save_format=save_format, overwrite=True)
         mlflow.log_artifacts(destination, file_to_save)
+
         return destination
 
     def predict_one(self, sample):

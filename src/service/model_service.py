@@ -12,7 +12,7 @@ logger = logging.getLogger('Model-service')
 
 # Default config values
 DEFAULT_OPTIMIZER = 'adam'
-DEFAULT_LOSS_FN = CategoricalCrossentropy(from_logits=True)
+DEFAULT_LOSS_FN = CategoricalCrossentropy()
 DEFAULT_ACTIVATION_FN = 'relu'
 DEFAULT_KERNEL = 3
 
@@ -59,7 +59,7 @@ def train(model, train_ds, epochs):
 
 def save(model, name):
     """ Save the model and return the location """
-    saved_location = model.save(MODELS_PATH, name)
+    saved_location = model.save_model(MODELS_PATH, name)
     logger.info(f'Model saved to: {saved_location}')
     return saved_location
 
@@ -85,17 +85,34 @@ def evaluate_model(model, test_ds):
 
 
 def validate_classification(model, test_ds, labels, print_detailed=True):
+    separator_line = lambda: print(50 * '*')
     num_samples = 0
     num_correct = 0
+    stat = {key: {'right': 0, 'wrong': 0} for key in labels}
     for test_batch in test_ds.as_numpy_iterator():
         num_samples += len(test_batch[0])
         label_set = np.argmax(test_batch[1], axis=1)
         result_set = model.predict_many(test_batch[0])
-        for label, prediction in zip(label_set, result_set):
-            num_correct += 1 if label == prediction else 0
+        for label_id, prediction in zip(label_set, result_set):
+            class_label = labels[label_id]
+            if label_id == prediction:
+                num_correct += 1
+                stat[class_label]['right'] += 1
+            else:
+                stat[class_label]['wrong'] += 1
             if print_detailed:
-                print(f'Prediction; expected: {labels[label]}({label}), prediction: {labels[prediction]}({prediction})'
-                      f' - {"Correct" if label == prediction else "Wrong"}')
-    accuracy = num_correct / num_samples * 100
+                print(f'Prediction; expected: {class_label}({label_id}), prediction: {labels[prediction]}({prediction})'
+                      f' - {"Correct" if label_id == prediction else "Wrong"}')
+    accuracy = round(num_correct / num_samples * 100, 3)
+    # Print the result
+    print(">>>   Classification result   <<<")
+    separator_line()
+    indent = max(len(i) for i in stat.keys())
+    for key, value in stat.items():
+        correct, wrong = value['right'], value['wrong']
+        acc = round(correct / (correct + wrong) * 100, 1)
+        print(f"{key:<{indent}} || correct: {correct:<3} - wrong: {wrong:,} => (accuracy: {acc} %)")
+    separator_line()
     print(f'Accuracy: {num_correct} is correct out of {num_samples} - {accuracy:.3f} %')
+    separator_line()
     return accuracy
