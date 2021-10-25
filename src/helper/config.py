@@ -10,7 +10,7 @@ DIST_PATH = Path(BASE_PATH, 'DIST')         # DIST/
 LOG_PATH = Path(DIST_PATH, 'logs')          # DIST/logs
 MODELS_PATH = Path(DIST_PATH, 'models')     # DIST/models/
 EXPORTED_MODELS_PATH = Path(DIST_PATH, 'mlruns')
-SRC_PATH = Path(BASE_PATH.parent, 'src')    # src/
+SRC_PATH = Path(BASE_PATH, 'src')
 CONFIG_FILE = Path(__file__).parents[1].joinpath('config.yml')
 
 logger = logging.getLogger("Config")

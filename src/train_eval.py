@@ -5,8 +5,8 @@ import logging
 from pathlib import Path
 import mlflow.keras
 
-from src.helper import config
-from src.service import data_service, model_service
+from helper import config
+from service import data_service, model_service
 
 DEFAULT_TRACKING_URI = 'http://localhost/'
 
@@ -81,6 +81,8 @@ if __name__ == '__main__':
     else:
         # Load model
         model_src = Path(model_service.MODELS_PATH, model_name)
+        if not os.path.exists(model_src):
+            raise ValueError(f"The given model: '{model_name}' in not exist, it cannot be loaded!")
         model = model_service.load(model_src)
         # Validation
         model_service.evaluate_model(model, test_ds)

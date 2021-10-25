@@ -3,8 +3,8 @@ import os
 from pathlib import Path
 from tensorflow.python.keras.preprocessing.image_dataset import image_dataset_from_directory
 
-from src.helper.config import timed
-from src.helper import loader, config
+from helper.config import timed
+from helper import loader, config
 
 USER_PATH = os.path.expanduser('~')
 DATASET_PATH = Path(USER_PATH, '.keras', 'datasets')

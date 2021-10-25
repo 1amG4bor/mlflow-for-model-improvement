@@ -6,7 +6,7 @@ from urllib.parse import urlparse
 from typing import List
 import tensorflow as tf
 
-from src.helper.config import timed
+from helper.config import timed
 
 logger = logging.getLogger("Loader")
 USER_PATH = os.path.expanduser('~')

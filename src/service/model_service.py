@@ -3,10 +3,10 @@ import logging
 import numpy as np
 from tensorflow.python.keras.losses import CategoricalCrossentropy
 
-from src.helper import config
-from src.helper.config import MODELS_PATH, LOG_PATH
-from src.model.props import ConvolutionProps, DenseProps
-from src.model.recognition_model import RecognitionModel
+from helper import config
+from helper.config import MODELS_PATH, LOG_PATH
+from model.props import ConvolutionProps, DenseProps
+from model.recognition_model import RecognitionModel
 
 logger = logging.getLogger('Model-service')
 

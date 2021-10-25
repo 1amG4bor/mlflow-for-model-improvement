@@ -4,13 +4,13 @@ from typing import Tuple
 
 import numpy as np
 import tensorflow as tf
-from tensorflow.python.keras import models, layers
+from tensorflow.keras import models, layers
 from tensorboard.plugins.hparams import api as hp
 import mlflow.keras
 
-from src.helper import config as cfg
-from src.helper.config import LOG_PATH, EXPORTED_MODELS_PATH
-from src.model.props import ConvolutionProps, DenseProps
+from helper import config as cfg
+from helper.config import LOG_PATH
+from model.props import ConvolutionProps, DenseProps
 
 
 logger = logging.getLogger('recognition_model')
