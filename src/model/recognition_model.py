@@ -1,21 +1,19 @@
 import logging
 from pathlib import Path
-from typing import Tuple
+from shutil import rmtree, copy
+from typing import Tuple, List
 
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras import models, layers
-from tensorboard.plugins.hparams import api as hp
 import mlflow.keras
 
 from helper import config as cfg
 from helper.config import LOG_PATH
 from model.props import ConvolutionProps, DenseProps
 
-
 logger = logging.getLogger('recognition_model')
 DEFAULT_LOG_FOLDER = LOG_PATH
-HP_OPTIMIZER = hp.HParam('optimizer', hp.Discrete(['adam']))
 
 
 class RecognitionModel(models.Sequential):
@@ -92,11 +90,20 @@ class RecognitionModel(models.Sequential):
         structure.append(layers.Dense(units=dense_props.final_layer, activation='softmax'))
         self.layer_list = structure
 
-    def compile_model(self, optimizer, loss_fn, metrics):
+    def compile_model(self,
+                      optimizer: str or tf.keras.optimizers,
+                      loss_fn: str or tf.keras.losses.Loss,
+                      metrics: List[str or tf.keras.metrics.Metric]):
         self.compile(optimizer, loss_fn, metrics)
 
+        loss_fn_name = loss_fn if isinstance(loss_fn, str) else loss_fn.name
+        mlflow.log_params({
+            'HP_optimizer': optimizer,
+            'HP_loss_fn': loss_fn_name
+        })
+
     def build_model(self, log_summary=True):
-        shape = (0,) + self.feature_columns
+        shape = [0, *self.feature_columns]
         self.build(shape)
         if log_summary:
             logger.info(f'Model summary:\n{self.summary()}')
@@ -119,11 +126,42 @@ class RecognitionModel(models.Sequential):
     def save_model(self, model_folder, file_to_save=None):
         if not file_to_save:
             file_to_save = self.name
+        save_format = cfg.get_value('model', 'save_format')
+        save_format = save_format if save_format in ['tf', 'h5'] else None
+
+        if save_format:
+            suffix = Path(file_to_save).suffix
+            ext = f'.{save_format}'
+            if save_format == 'h5':
+                file_to_save = file_to_save + ext if suffix != ext else file_to_save
+            else:
+                file_to_save = Path(file_to_save).stem if suffix == ext else file_to_save
+
         destination = Path(model_folder, file_to_save)
 
-        save_format = cfg.get_value('model', 'save_format')
+        """ Save the model in different forms and to different places """
+        # 1). Save keras model locally (tf or h5)
         models.save_model(self, destination, save_format=save_format, overwrite=True)
-        mlflow.log_artifacts(destination, file_to_save)
+        # 2). Save MLflow model locally (with data, MLmodel, conda.yaml, etc)
+        mlflow_model_destination = Path(destination.parent, 'mlflow-models', Path(file_to_save).stem)
+        if mlflow_model_destination.exists():
+            rmtree(mlflow_model_destination)
+        env = mlflow.keras.get_default_conda_env()
+        mlflow.keras.save_model(self, mlflow_model_destination, env, custom_objects=self.custom_object(),
+                                keras_module='tensorflow.keras')
+
+        # Log to MLflow
+        # 3). Log keras model as an artifact (should be dir)
+        tmp = Path(destination.parent, 'keras-model')
+        tmp.mkdir()
+        copy(destination, tmp)
+        mlflow.log_artifacts(tmp, 'keras-model')
+        rmtree(tmp)
+        # 4). Log mlflow-model as an artifact to MLflow
+        mlflow.log_artifacts(mlflow_model_destination, 'mlflow-model-artifact')
+        # 5). Log mlflow-model as a model to MLflow
+        mlflow.keras.log_model(self, artifact_path='log_model', conda_env=env, custom_objects=self.custom_object(),
+                               keras_module='tensorflow.keras')
 
         return destination
 
@@ -139,7 +177,7 @@ class RecognitionModel(models.Sequential):
         """ Returns a Keras model instance that will be compiled if it was saved that way, otherwise need to compile
         :parameter model_location: destination of the saved model, it could be: `str`, `pathlib.Path`, `h5py.File`
         """
-        return models.load_model(model_location, custom_objects={'RecognitionModel': RecognitionModel})
+        return models.load_model(model_location, custom_objects=RecognitionModel.custom_object())
 
     @staticmethod
     def separate_features_and_labels(dataset):
@@ -149,3 +187,8 @@ class RecognitionModel(models.Sequential):
             features.extend(sample[0])
             labels.extend(sample[1])
         return features, labels
+
+    @staticmethod
+    def custom_object():
+        """ Returns a dictionary mapping names (strings) to custom class that used by Keras to save/load models """
+        return {'RecognitionModel': RecognitionModel}

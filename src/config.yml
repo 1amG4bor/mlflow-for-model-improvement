@@ -20,5 +20,10 @@ model:
         activation: 'relu'
     optimizer: 'adam'
     # Output type of model when saved ('tf' or 'h5')
-    save_format: 'tf'
+    save_format: 'h5'
+
+mlflow:
+    tracking_uri: ~
+    experiment_name: ~
+
 

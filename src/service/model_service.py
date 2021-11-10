@@ -28,7 +28,7 @@ def create(name, input_shape, labels, loss_fn=DEFAULT_LOSS_FN):
     convolution_props = ConvolutionProps(
         layers=convolution_cfg.get('layers', [16]),
         kernel=convolution_cfg.get('kernel', DEFAULT_KERNEL),
-        activation= convolution_cfg.get('activation', DEFAULT_ACTIVATION_FN))
+        activation=convolution_cfg.get('activation', DEFAULT_ACTIVATION_FN))
 
     dense_props = DenseProps(
         layers=[*dense_cfg.get('layers', []), len(labels)],
@@ -64,13 +64,18 @@ def save(model, name):
     return saved_location
 
 
-def load(model_location, build=False, print_summary=True):
+def load(model_name, build=False, print_summary=True):
     """ Returns a Keras model instance that will be compiled if it was saved that way, otherwise need to compile
-    :parameter model_location: [str or pathlib.Path or h5py.File], location of the saved model to load
+    :parameter model_name: string that represent the name of the model that need to be loaded
     :param build: Boolean, whether to build the model when it is loaded (default `False`).
     :param print_summary: Boolean, whether to print the model summary if the model is re-builded (default `True`).
     """
-    model = RecognitionModel.load_saved_model(model_location)
+    model_src = Path(MODELS_PATH, model_name)
+    if not model_src.is_dir():
+        model_src = model_src.with_suffix('.h5')
+    if not model_src.exists():
+        raise ValueError(f"The given model: '{model_name}' in not exist, it cannot be loaded!")
+    model = RecognitionModel.load_saved_model(model_src)
     if build:
         model.build_model(print_summary)
     return model
@@ -103,7 +108,7 @@ def validate_classification(model, test_ds, labels, print_detailed=True):
             if print_detailed:
                 print(f'Prediction; expected: {class_label}({label_id}), prediction: {labels[prediction]}({prediction})'
                       f' - {"Correct" if label_id == prediction else "Wrong"}')
-    accuracy = round(num_correct / num_samples * 100, 3)
+    cumulative_accuracy = round(num_correct / num_samples * 100, 3)
     # Print the result
     print(">>>   Classification result   <<<")
     separator_line()
@@ -113,6 +118,7 @@ def validate_classification(model, test_ds, labels, print_detailed=True):
         acc = round(correct / (correct + wrong) * 100, 1)
         print(f"{key:<{indent}} || correct: {correct:<3} - wrong: {wrong:,} => (accuracy: {acc} %)")
     separator_line()
-    print(f'Accuracy: {num_correct} is correct out of {num_samples} - {accuracy:.3f} %')
+    print(f'Accuracy: {num_correct} is correct out of {num_samples} - {cumulative_accuracy:.3f} %')
     separator_line()
-    return accuracy
+    stat['cumulative'] = {'right': num_correct, 'wrong': num_samples - num_correct}
+    return stat
