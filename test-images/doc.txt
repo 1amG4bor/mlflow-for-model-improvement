@@ -1,0 +1,1 @@
+Folder for images to test the deployed model on real, unseen images.

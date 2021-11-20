@@ -56,9 +56,9 @@ Two configuration files need to be filled properly to be able to run the script,
 - **`.env` file**: Provides the values that are needed to build up and run the docker containers where the MLflow server will run. 
 - **`config.yaml`**: Contains configurations that manage the data source, the model structure, deployment related
  information, and the MLflow basic config as well.
-- **CLI options**: Collection of configuration values that manage how the script runs. For more information see: [CLI
- options
-](#cli-options)
+- **CLI options**: Collection of configuration values that manage how the script runs.
+
+---
 
 ### .env file
 
@@ -103,17 +103,16 @@ configurations that affect the workflow.
     - **test split**: percentage value that defines how split the full dataset for training and testing
     - **validation split**: percentage value that defines how split the training dataset for training and validation
   
-### How to configure
-
-Some basic configurations: 
+Example CLI configurations: 
 - Download the dataset specified in YAML config and extract it to a folder named, e.g: 'my_dataset'
-    <br>**`python train_eval -d -ds my_dataset`** (-d | --download, -ds | --dataset')
+    <br>**`python train_eval -d -ds my_dataset`** (-d | --download, -ds | --dataset)
 - Create a filtered dataset based on an existing one with the specified classes
-    <br>**`python train_eval -ds fruits -sub less_fruit_dataset apple banana`** (-sub | --subset')
-- Train our dataset with given batch size and epoch
-    <br>**`python train_eval -ds my_dataset -b 48 -ep 100`** (-b | --batch, -ep | --epoch')
-
-YAML configuration is: **`src/config.yml`**
+    <br>**`python train_eval -ds fruits -sub less_fruits_dataset apple banana`** (-sub | --subset)
+- Train model on existing dataset with given batch size and epoch
+    <br>**`python train_eval -ds my_dataset -b 48 -ep 100`** (-b | --batch, -ep | --epoch)
+- Train model on existing dataset with custom data segregation and deploy limit
+    <br>**`python train_eval -ds my_dataset -ts 30 -vs 10 -dl 95`** (-ts | --test-split, -vs | --validation-split, -dl | --deploy-limit)
+    
 
 ## 3). Related articles and documentations
 
@@ -122,6 +121,7 @@ YAML configuration is: **`src/config.yml`**
 - The documentation of **MLflow**[^2][^3] and **TensorFlow**[^4] are quite verbose with a lot of examples that make it
  easy to use them.
 - The Glossary section is based on **ml-cheatsheet - glossary**[^5]
+
 ***
 
 ### References:
