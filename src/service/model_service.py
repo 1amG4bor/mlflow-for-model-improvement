@@ -2,6 +2,9 @@ from pathlib import Path
 import logging
 import numpy as np
 from tensorflow.python.keras.losses import CategoricalCrossentropy
+from tensorflow.python.keras.optimizer_v2.
+
+
 
 from helper import config
 from helper.config import MODELS_PATH, LOG_PATH
@@ -49,11 +52,10 @@ def compile_n_build(model, optimizer, loss_fn):
     model.build_model()
 
 
-def train(model, train_ds, epochs):
+def train(model, train_ds, epochs, validation_split):
     """ Split the given dataset (train/validation) & train the model """
     isolated_ds = train_ds.map(lambda x, y: (x, y))
     image_batch, labels_batch = next(iter(isolated_ds))
-    validation_split = 0.2
     model.train_model(image_batch, labels_batch, validation_split, epochs)
 
 
@@ -121,4 +123,4 @@ def validate_classification(model, test_ds, labels, print_detailed=True):
     print(f'Accuracy: {num_correct} is correct out of {num_samples} - {cumulative_accuracy:.3f} %')
     separator_line()
     stat['cumulative'] = {'right': num_correct, 'wrong': num_samples - num_correct}
-    return stat
+    return stat, cumulative_accuracy

@@ -1,10 +1,11 @@
 # Specify where the dataset comes from moreover the internal folder name if different from the archive name of the dataset
-download:
+datasource:
     # URL for the archived dataset
     dataset_source: 'https://storage.googleapis.com/download.tensorflow.org/example_images/flower_photos.tgz'
     # Top folder name of the archived dataset
     dataset_name: 'flower_photos'
 
+# Configuration of the CNN model
 model:
     convolution:
         # Array with the number of filters for each layer
@@ -18,12 +19,21 @@ model:
         layers: [64, 16]
         # Activation function for the Dense layers
         activation: 'relu'
+    # One of the supported optimizer function to reduce the losses (tensorflow.python.keras.optimizer)
     optimizer: 'adam'
     # Output type of model when saved ('tf' or 'h5')
     save_format: 'h5'
 
+# Deployment related configuration
+deployment:
+    host: ~
+    port: ~
+
+# MLflow base configuration
 mlflow:
+    # The URI where the MLflow server is running
     tracking_uri: ~
+    # Name of the group for experiments
     experiment_name: ~
 
 

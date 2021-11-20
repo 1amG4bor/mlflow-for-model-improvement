@@ -54,14 +54,14 @@ def data_sourcing(args):
 
 
 @timed
-def data_segregation(path, shape, batch_size):
+def data_segregation(path, shape, batch_size, test_split):
     logger.info(f'Data segregation of dataset: {path.stem}')
     train_dataset = image_dataset_from_directory(
         path,
         labels='inferred',
         label_mode='categorical',
         color_mode='grayscale',
-        validation_split=0.2,
+        validation_split=test_split,
         subset="training",
         shuffle=True,
         seed=123,
@@ -73,7 +73,7 @@ def data_segregation(path, shape, batch_size):
         labels='inferred',
         label_mode='categorical',
         color_mode='grayscale',
-        validation_split=0.2,
+        validation_split=test_split,
         subset="validation",
         shuffle=True,
         seed=123,

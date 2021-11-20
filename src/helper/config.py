@@ -2,6 +2,7 @@ import argparse
 import logging
 import time
 from pathlib import Path
+import socket
 
 import yaml
 
@@ -12,6 +13,10 @@ MODELS_PATH = Path(DIST_PATH, 'models')     # DIST/models/
 EXPORTED_MODELS_PATH = Path(DIST_PATH, 'mlruns')
 SRC_PATH = Path(BASE_PATH, 'src')
 CONFIG_FILE = Path(__file__).parents[1].joinpath('config.yml')
+
+DEFAULT_TRACKING_URI = f'http://{socket.gethostbyname("localhost")}/'
+DEFAULT_EXPERIMENT_NAME = 'Test experiment'
+
 
 logger = logging.getLogger("Config")
 
@@ -79,10 +84,19 @@ def setup_arguments():
 
     # Arguments to configure the training process
     process_group = parser.add_argument_group('Arguments configure the training process')
+    process_group.add_argument('-r', '--run-name', type=str,
+                               help='Name for the experiment to run and for the deployed model as well, if its '
+                                    'accuracy will reach the required value. (default: 80 percent)')
     process_group.add_argument('-b', '--batch', type=int, default=64,
                                help='Batch size for training the model. (default:64)')
     process_group.add_argument('-ep', '--epoch', type=int, default=20,
                                help='Epoch size for training the model. (default:20)')
+    process_group.add_argument('-ts', '--test-split', type=int, default=20,
+                               help='Percentage of test dataset size relative to the total dataset. (default:20)')
+    process_group.add_argument('-vs', '--validation-split', type=int, default=20,
+                               help='Percentage of validation dataset size relative to the train dataset. (default:20)')
+    process_group.add_argument('-dl', '--deploy-limit', type=int, default=80,
+                               help='Value of the minimum accuracy that triggers a model deployment.')
 
     args = parser.parse_args()
     if not args.dataset and not args.download:
@@ -94,5 +108,7 @@ def setup_arguments():
         args.subset_name = args.subset.pop(0)
     else:
         args.sub = args.subset_name = None
+    args.test_split /= 100
+    args.validation_split /= 100
 
     return args
