@@ -19,7 +19,8 @@ model:
         layers: [64, 16]
         # Activation function for the Dense layers
         activation: 'relu'
-    # One of the supported optimizer function to reduce the losses (tensorflow.python.keras.optimizer)
+    # One of the supported optimizer function to reduce the losses
+    #   See: tensorflow.python.keras.optimizer
     optimizer: 'adam'
     # Output type of model when saved ('tf' or 'h5')
     save_format: 'h5'
