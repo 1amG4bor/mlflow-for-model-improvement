@@ -1,18 +1,28 @@
 # MLflow for model improvement
+
+###### Dependencies
+![](https://img.shields.io/badge/Python-3.8-blue)
+![](https://img.shields.io/badge/TensorFlow-2.6.0-orange)
+![](https://img.shields.io/badge/Keras-2.6.0-red)
+![](https://img.shields.io/badge/MLflow-1.20.2-lightblue)
+![](https://img.shields.io/badge/Docker-20.10.7-success)
+
+## 1). Introduction
+
 This project aims to show how MLflow can be used to analyze, configure and improve our model to perform better
  whether it is a Deep Neural Network (DNN), Convolutional Neural Network, or a simple Feed-forward Neural Network.
 
->:warning: **This repository contains the source code for the online meet-up session that speaks of how to use MLflow
-> to improve our models.**<br>
+>:warning: **This repository contains the source code and slides for the online Meet-up session that speaks of**:
+> - what is MLOps
+> - what is ML pipeline
+> - how to use MLflow to improve our models.**
 >
->![](https://img.shields.io/static/v1?label=Session%20date&message=November%2025,%202021&color=success&logo=meetup) <br>
+> The session was held on November 25, 2021 organized on the Community-Z platform.
 
-  
-## 1). Used technologies
-- Python 3.8
-- TensorFlow-2 (Keras)
-- MLflow
-- Docker
+[**About the "Talk" on Community-Z portal**](https://community-z.com/events/model_improvement_with_ml_flow)
+
+[**Recording of the Meetup** - On YouTube](https://www.youtube.com/watch?v=_2ScOR83CE4)
+
 
 ## 2). How to run
 
@@ -21,7 +31,7 @@ Commands for creating the environment, running the model creation, training, and
  
 - Checking that the required dependencies are installed<br>
 `python --version & conda --version & docker --version`
-- Build and run the docker containers that serve the MLflow server on localhost<br>
+- Build and run the docker containers that serve the containerized MLflow server on localhost<br>
 `docker-compose up -d --build`
 ---
 - Script to create, train, and evaluate the model<br>
@@ -37,15 +47,13 @@ Commands for creating the environment, running the model creation, training, and
  **port-number** -h **host**`<br>
 e.g to serve the model on localhost: `mlflow models serve -m "s3://my-bucket/ml-runs/1/01010myrunid01010/artifacts/model
 " -p 9000 -h 0.0.0.0`
-- Deploy MLflow model in docker container<br>
- **run in ./deployment folder** - `docker build -t ml_prediction_model --build-arg EXP_ID=1 --build-arg RUN_ID
- ="01010myrunid01010" .`
 - Serve model from the model repository<br>
 `mlflow models serve -m "models:/my-model-name/Production" -p 9000 -h 0.0.0.0`
 - Script to predict on served model<br>
 `python src\predict.py --labels class-1 class-2 class-3 --classification-type=my-classification-type`<br>
 e.g: `python src\predict.py --labels "apple" "banana" "peach"  --classification-type="fruit"`
-   
+- Deploy MLflow model in docker container<br>
+ `mlflow models build-docker -m "runs:/<my-run-id>/model" -n "<my-image-name>"`
 
 ## 3). How to configure
 
@@ -121,6 +129,7 @@ Example CLI configurations:
 - The documentation of **MLflow**[^2][^3] and **TensorFlow**[^4] are quite verbose with a lot of examples that make it
  easy to use them.
 - The Glossary section is based on **ml-cheatsheet - glossary**[^5]
+- Introduction to MLflow - **Videos about the components of MLflow**[^5]
 
 ***
 
@@ -135,3 +144,13 @@ Keras, models - *API for model creation*: https://www.tensorflow.org/api_docs/py
 Keras, layers - *How to build layers* : https://www.tensorflow.org/api_docs/python/tf/keras/layers <br>
 Keras, callbacks - *Performed actions at various stages of training*: https://www.tensorflow.org/api_docs/python/tf/keras/callbacks <br>
 [^5]: https://ml-cheatsheet.readthedocs.io/en/latest/glossary.html <br>
+[^6]: https://databricks.com/discover/managing-machine-learning-lifecycle <br>
+
+***
+
+### Social links 
+
+[![](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/1amG4bor)
+[![](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/gabortanacs)
+[]()
+[]()

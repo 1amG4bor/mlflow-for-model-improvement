@@ -1,0 +1,32 @@
+
+
+name: mlflow_for_model_improvement
+conda_env: conda.yaml
+# docker_env:
+#    image:  mlflow-docker-example
+
+entry_points:
+    main:
+        parameters:
+            dataset: path
+        command: "python train.py {dataset}"
+    validate:
+        parameters:
+            dataset: path
+        command: "python validate.py {dataset}"
+
+
+#
+#name: My Project
+#conda_env: conda.yaml
+#
+#entry_points:
+#  main:
+#    parameters:
+#      data_file: path
+#      regularization: {type: float, default: 0.1}
+#    command: "python train.py -r {regularization} {data_file}"
+#  validate:
+#    parameters:
+#      data_file: path
+#    command: "python validate.py {data_file}"

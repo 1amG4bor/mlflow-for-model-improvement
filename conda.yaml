@@ -1,0 +1,14 @@
+channels:
+- conda-forge
+dependencies:
+- python=3.8.12
+- pip
+- pip:
+  - mlflow
+  - boto3==1.19.0
+  - keras==2.6.0
+  - pillow==8.4.0
+  - pyopenssl==20.0.1
+  - scipy==1.7.1
+  - tensorflow==2.6.0
+name: mlflow-env

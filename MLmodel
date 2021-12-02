@@ -1,0 +1,16 @@
+
+artifact_path: model
+flavors:
+  keras:
+    data: data
+    keras_module: tensorflow.keras
+    keras_version: 2.6.0
+    save_format: tf
+  python_function:
+    data: data
+    env: conda.yaml
+    loader_module: mlflow.keras
+    python_version: 3.8.12
+run_id: <run-id-for-the-desired-experiment>
+utc_time_created: <date-string of the desired experiment>
+

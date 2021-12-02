@@ -1,9 +1,9 @@
 # Specify where the dataset comes from moreover the internal folder name if different from the archive name of the dataset
 datasource:
-    # URL for the archived dataset
-    dataset_source: 'https://storage.googleapis.com/download.tensorflow.org/example_images/flower_photos.tgz'
-    # Top folder name of the archived dataset
-    dataset_name: 'flower_photos'
+    # URL for the archived dataset, e.g: 'https://storage.googleapis.com/download.tensorflow.org/example_images/flower_photos.tgz'
+    dataset_source: ~
+    # Top folder name of the archived dataset, e.g: 'flower_photos'
+    dataset_name: ~
 
 # Configuration of the CNN model
 model:
@@ -35,6 +35,6 @@ mlflow:
     # The URI where the MLflow server is running
     tracking_uri: ~
     # Name of the group for experiments
-    experiment_name: ~
+    experiment_name: Presentation experiments
 
 
