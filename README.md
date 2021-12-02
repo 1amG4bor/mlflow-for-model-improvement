@@ -23,6 +23,7 @@ This project aims to show how MLflow can be used to analyze, configure and impro
 
 [**Recording of the Meetup** - On YouTube](https://www.youtube.com/watch?v=_2ScOR83CE4)
 
+[:warning: Slides of the presentation](MLflow-presentation.pptx)
 
 ## 2). How to run
 
